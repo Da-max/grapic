@@ -178,29 +178,29 @@ end
 
 
 -- description des projets
-make_project( "Start", "apps/start/main_start.cpp" )
+--  make_project( "Start", "apps/start/main_start.cpp" )
 
 
--- tuto
-make_project( "tuto1_Simple", 		"apps/tutorials/tuto1_Simple.cpp" )
-make_project( "tuto2_FirstLoop", 	"apps/tutorials/tuto2_FirstLoop.cpp" )
-make_project( "tuto3_Drawing", 		"apps/tutorials/tuto3_Drawing.cpp" )
-make_project( "tuto4_Keyboard", 	"apps/tutorials/tuto4_Keyboard.cpp" )
-make_project( "tuto5_Mouse", 		"apps/tutorials/tuto5_Mouse.cpp" )
-make_project( "tuto6_Menu", 		"apps/tutorials/tuto6_Menu.cpp" )
-make_project( "tuto7_Animation", 	"apps/tutorials/tuto7_Animation.cpp" )
-make_project( "tuto8_Plot",			"apps/tutorials/tuto8_Plot.cpp" )
-make_project( "tuto9_Image",		"apps/tutorials/tuto9_Image.cpp" )
-make_project( "tuto10_Demo",		"apps/tutorials/tuto10_Demo.cpp" )
+---- tuto
+--  make_project( "tuto1_Simple", 		"apps/tutorials/tuto1_Simple.cpp" )
+--  make_project( "tuto2_FirstLoop", 	"apps/tutorials/tuto2_FirstLoop.cpp" )
+--  make_project( "tuto3_Drawing", 		"apps/tutorials/tuto3_Drawing.cpp" )
+--  make_project( "tuto4_Keyboard", 	"apps/tutorials/tuto4_Keyboard.cpp" )
+--  make_project( "tuto5_Mouse", 		"apps/tutorials/tuto5_Mouse.cpp" )
+--  make_project( "tuto6_Menu", 		"apps/tutorials/tuto6_Menu.cpp" )
+--  make_project( "tuto7_Animation", 	"apps/tutorials/tuto7_Animation.cpp" )
+--  make_project( "tuto8_Plot",			"apps/tutorials/tuto8_Plot.cpp" )
+--  make_project( "tuto9_Image",		"apps/tutorials/tuto9_Image.cpp" )
+--  make_project( "tuto10_Demo",		"apps/tutorials/tuto10_Demo.cpp" )
 
--- demo
-make_project( "demo_Minesweeper", 	"apps/demo_minesweeper/main_minesweeper.cpp" )
-make_project( "demo_Tetris", 	"apps/demo_tetris/main_tetris.cpp" )
-make_project( "demo_Checkers",	"apps/demo_checkers/main_checkers.cpp" )
-make_project( "demo_Pacman", 	{ "apps/demo_pacman/Jeu.cpp",     "apps/demo_pacman/Terrain.cpp",
-								"apps/demo_pacman/Jeu.h",       "apps/demo_pacman/Terrain.h",
-								"apps/demo_pacman/Pacman.cpp",  "apps/demo_pacman/main_pacman.cpp",
-								"apps/demo_pacman/Pacman.h" } )
+---- demo
+--  make_project( "demo_Minesweeper", 	"apps/demo_minesweeper/main_minesweeper.cpp" )
+--  make_project( "demo_Tetris", 	"apps/demo_tetris/main_tetris.cpp" )
+--  make_project( "demo_Checkers",	"apps/demo_checkers/main_checkers.cpp" )
+--  make_project( "demo_Pacman", 	{ "apps/demo_pacman/Jeu.cpp",     "apps/demo_pacman/Terrain.cpp",
+--								"apps/demo_pacman/Jeu.h",       "apps/demo_pacman/Terrain.h",
+--								"apps/demo_pacman/Pacman.cpp",  "apps/demo_pacman/main_pacman.cpp",
+--								"apps/demo_pacman/Pacman.h" } )
 
 
 
