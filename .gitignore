@@ -15,3 +15,4 @@ doc/xml*
 apps/LIFAMI/
 
 bin/
+dist/
