@@ -3,12 +3,28 @@
 ## But du projet
 
 Ce projet a pour but de faire un système proie prédateur _le plus poussé possible_ à l’aide de la bibliothèque _[Grapic](https://perso.liris.cnrs.fr/alexandre.meyer/grapic/html/index.html)_ (basé sur [SDL2](https://libsdl.org/)).
-Mon but est également de mettre en place un environnement de développement assez complet avec des scriptes permettant de faire facilement les actions récurrentes, mais également de le documenté.
+Mon but est également de mettre en place un environnement de développement assez complet avec des scriptes permettant de faire facilement les actions récurrentes, mais également de le documenté. [Code source](https://github.com/Da-max/grapic) (github).
 
 ## Structure
 
 - Le dossier `data` contient toute les images servant au fonctionnement du projet.
 - Le dossier `script` contient les scripts servant à facilité les actions récurrentes du projet. _Attention ces scripts ne fonctionnent que sur Linux._
+
+## Comment utiliser
+
+### À partir des sources
+
+- Cloner le dépot `git clone https://github.com/Da-max/grapic`
+- Se rendre dans le dossier `cd grapic` 
+- Lancer le build et run avec `make start`
+
+### À partir du zip
+
+- Extraire le projet `unzip main_project.zip`
+- Déplacer le contenu de `data` dans `./data/img/main_project` (ou modifier dans le `main.cpp` le chemin vers les images)
+- Déplacer le `main.cpp` dans le dossier de son choix et ajouter ce chemin dans `premake4.lua`
+- Compiler `make <nom_du_projet>`
+- Lancer `bin/<nom_du_projet`
 
 ## Avancement
 
@@ -18,3 +34,20 @@ Début du projet, pour l’instant très classique. Pas séparé en plusieurs fi
 
 - De nombreuses erreurs doivent restées, j’ai défini uniquement quelques structures et quelques fonctions utilitaires.
 - Le code est contenu uniquement dans `main.cpp`.
+
+### Avancement au 9 avril
+
+*Suite du projet, pas grand chose de plus.* À ce stade, mon projet compile, cependant il me reste un bug (que je n’arrive toujours pas à résoudre) : si je ne passe pas mes structures par référence, 
+j’obtiens une erreur (*segmentation erreur*). 
+
+- Définition de structures complémentaires et quelques fonctions afin de créer/confiurer ces structures.
+- Modification du makefile afin d’automatiser quelques opérations (build+run et zip).
+- Définition d’autres getters afin d’obtenir facilement des informations sur les individus (sexe, herb, proie, prédateur, etc…).
+- Ajout de deux fonctions d’affichage
+
+#### TODO
+
+- **Régler le problème de pointeurs** (-> me documenter d’avantage sur le fonctionnement des pointeurs).
+- Commencer les fonctions d’updates.
+- Trouver et ajouter d’autres images (en fonction du genre et nombre de jours de vie).
+- Essayer de séparer en plusieurs fichiers (?)
