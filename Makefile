@@ -34,7 +34,18 @@ endif
 # TO DEBUG apps_linux
 #$(info (DEBUG) apps_linux=$(apps_linux))
 
+start:
+	make main_project && bin/main_project;
 
+zip:
+	rm -r ${GRAPIC_HOME}/dist/main_project.zip ${GRAPIC_HOME}/dist/main_project &2> /dev/null
+	mkdir -p ${GRAPIC_HOME}/dist/main_project/{src,data}
+	cp -r ${GRAPIC_HOME}/apps/main_project/* ${GRAPIC_HOME}/dist/main_project/src
+	mv ${GRAPIC_HOME}/dist/main_project/src/README.md ${GRAPIC_HOME}/dist/main_project/ &2> /dev/null 
+	cp -r ${GRAPIC_HOME}/data/main_project/* ${GRAPIC_HOME}/dist/main_project/data &2> /dev/null
+	cd ${GRAPIC_HOME}/dist && zip -r ./main_project.zip ./main_project
+	rm -r ${GRAPIC_HOME}/dist/main_project
+	unzip -l ${GRAPIC_HOME}/dist/main_project.zip
 
 
 all: build/${OS} remove_quarantine
@@ -65,8 +76,8 @@ docgen: $(GRAPIC_HOME)/doc $(GRAPIC_HOME)/doc/images $(GRAPIC_HOME)/src FORCE
 dos2unix:
 	dos2unix script/*.sh doc/VERSION ; chmod 755 script/*.sh
 
-zip: dos2unix version $(GRAPIC_HOME)/bin/remove_correction.exe
-	$(GRAPIC_HOME)/script/make_zip.sh
+# zip: dos2unix version $(GRAPIC_HOME)/bin/remove_correction.exe
+# 	$(GRAPIC_HOME)/script/make_zip.sh
 
 version: FORCE
 	#$(shell $(GRAPIC_HOME)/script/inc_version.sh))
