@@ -41,8 +41,8 @@ zip:
 	rm -r ${GRAPIC_HOME}/dist/main_project.zip ${GRAPIC_HOME}/dist/main_project &2> /dev/null
 	mkdir -p ${GRAPIC_HOME}/dist/main_project/{src,data}
 	cp -r ${GRAPIC_HOME}/apps/main_project/* ${GRAPIC_HOME}/dist/main_project/src
-	mv ${GRAPIC_HOME}/dist/main_project/src/README.md ${GRAPIC_HOME}/dist/main_project/ &2> /dev/null 
-	cp -r ${GRAPIC_HOME}/data/main_project/* ${GRAPIC_HOME}/dist/main_project/data &2> /dev/null
+	mv ${GRAPIC_HOME}/dist/main_project/src/README.md ${GRAPIC_HOME}/dist/main_project/ &2> /dev/null
+	cp -r ${GRAPIC_HOME}/data/img/main_project/* ${GRAPIC_HOME}/dist/main_project/data &2> /dev/null
 	cd ${GRAPIC_HOME}/dist && zip -r ./main_project.zip ./main_project
 	rm -r ${GRAPIC_HOME}/dist/main_project
 	unzip -l ${GRAPIC_HOME}/dist/main_project.zip
