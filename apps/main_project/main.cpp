@@ -5,6 +5,8 @@
 // - tout ça dans un environnement modifiable et fléxible
 // J'ai trouvé de la documentation ici :
 // - https://en.wikipedia.org/wiki/Computational_science#Methods_and_algorithms
+// - https://fr.wikipedia.org/wiki/%C3%89quations_de_pr%C3%A9dation_de_Lotka-Volterra
+// - https://fr.wikipedia.org/wiki/%C3%89quilibres_pr%C3%A9dateurs-proies
 
 #include <Grapic.h>
 #include <iostream>
@@ -16,8 +18,9 @@ using namespace std;
 // CONST VARIABLES
 // ===============
 
-const int MAX_CHAR = 1000;
+const int MAX_CHAR = 500;
 const int GRID_WIDTH = 10;
+const char WINDOW_NAME[MAX_CHAR] = "Système proie prédateur";
 const char TYPES[3][MAX_CHAR] = {"herb", "prey", "predator"};
 const int LIFE_DURATION[3] = {100, 200, 300};
 const int JEUNE_DURATION[3] = {100, 200, 300};
@@ -62,6 +65,7 @@ struct Individual {
     int genre = -1;
     int jeune_duration = 0;
     int life_duration = 0;
+    bool is_reproduced = false;
 };
 
 /**
@@ -82,6 +86,23 @@ struct Window {
     int width_w, width_h;
     Ecosystem ecosystem;
 };
+
+// OPERATORS
+// =======
+
+
+// Individual operators
+
+void operator++(Individual &individual) {
+    individual.life_duration++;
+    individual.jeune_duration++;
+}
+
+// Individual type operators
+
+bool operator==(IndividualType individual_type1, IndividualType individual_type2) {
+    return individual_type1.type == individual_type2.type;
+}
 
 // GETTERS
 // =======
@@ -124,7 +145,7 @@ bool is_herb(Individual individual) {
  */
 bool is_male(Individual individual) {
     if (individual.genre < 0) {
-        throw invalid_argument("L’individu n’a pas de genre, ou celui-ci n’est pas défini.");
+        throw invalid_argument("L’individu n’a pas de genre, ou celui-ci n’est pas defini.");
     }
     return individual.genre < 1;
 }
@@ -147,10 +168,19 @@ bool is_old(Individual individual) {
     return individual.life_duration > LIFE_DURATION[individual.individual_type.type] / 2;
 }
 
-// UTILS FUNCTIONS
+/**
+ * function to verify that the individual is not too old to live or has been fasting too long.
+ * @param individual
+ * @return
+ */
+bool is_dead(Individual individual) {
+    return individual.jeune_duration > JEUNE_DURATION[individual.individual_type.type] ||
+           individual.life_duration > JEUNE_DURATION[individual.individual_type.type];
+}
 
-float compute_ratio(Window window) {
-    return min(window.width_h / window.ecosystem.dy, window.width_w / window.ecosystem.dx);
+bool can_reproduced(Individual individual1, Individual individual2) {
+    return individual1.individual_type == individual2.individual_type && individual1.genre != individual2.genre &&
+           !individual1.is_reproduced && !individual2.is_reproduced;
 }
 
 // MAKE FUNCTIONS
@@ -187,7 +217,7 @@ IndividualTypeImages make_individual_type_images(int type) {
     individual_type_images.female = image(img);
     individual_type_images.child_female = image(img);
     individual_type_images.child_male = image(img);
-    if (type > 100) {
+    if (type > 0) {
         strcpy(img, base_dir_img);
         strcat(img, "female");
         strcat(img, EXTENSION_IMG);
@@ -217,7 +247,7 @@ IndividualType make_individual_type(int type) {
     IndividualType individual_type;
     IndividualTypeImages individual_type_images;
 
-    individual_type.type = 0;
+    individual_type.type = type;
     strcpy(individual_type.name, TYPES[type]);
     individual_type.jeune_duration = JEUNE_DURATION[type];
     individual_type.life_duration = LIFE_DURATION[type];
@@ -240,6 +270,37 @@ Individual make_individual(IndividualType individual_type) {
     return individual;
 }
 
+
+// UTILS FUNCTIONS
+
+float compute_ratio(Window window) {
+    return min(window.width_h / window.ecosystem.dy, window.width_w / window.ecosystem.dx);
+}
+
+Position find_empty_case(Ecosystem ecosystem, int x = -1, int y = -1) {
+    cout << "Find empty case" << endl;
+    Position p = make_position(-1, -1);
+
+    if (x == -1 || y == -1) {
+        cout << "Plus de cases dispo…" << endl;
+        //p = find_empty_case_random();
+    } else {
+        if (x == 0 || y == 0) {
+            throw invalid_argument("Les coordonnees rentrees ne sont pas valides.");
+        }
+        for (int i = 0; i <= 2; ++i) {
+            for (int j = 0; j <= 2; ++j) {
+                if (i != j && is_herb(ecosystem.grid[x + i][y + j])) {
+                    p = make_position(i, j);
+                    i = 2;
+                    j = 2;
+                }
+            }
+        }
+    }
+    return p;
+}
+
 // INIT FUNCTIONS
 // ==============
 
@@ -253,21 +314,90 @@ void init_individual_types(Ecosystem &ecosystem) {
     }
 }
 
-// CONFIG FUNCTIONS
-
 /**
- * function for init the ecosystem.
- * @param ecosystem Ecocsytem to init
- * @param size_x size_x of the ecosystem
- * @param size_y size_y on the ecosystem
+ * Function for init the ecosystem grid with the first type.
+ * @param ecosystem Ecosystem to init.
  */
 void init_ecosystem_grid(Ecosystem &ecosystem) {
-    for (int i = 0; i < ecosystem.dx; i++) {
-        for (int j = 0; j < ecosystem.dy; j++) {
+    for (int i = 0; i < ecosystem.dx; ++i) {
+        for (int j = 0; j < ecosystem.dy; ++j) {
             ecosystem.grid[i][j] = make_individual(ecosystem.individual_types[0]);
         }
     }
 }
+
+// UPDATE FUNCTIONS
+// ================
+
+bool reproduced(Individual &individual, Ecosystem &ecosystem, int x, int y) {
+    cout << "Reproduced" << endl;
+    bool reproduced = false;
+    for (int i = 0; i <= 2; ++i) {
+        for (int j = 0; j <= 2; ++j) {
+            if (i != j && can_reproduced(individual, ecosystem.grid[x + i][y + j])) {
+                individual.is_reproduced = true;
+                ecosystem.grid[x + i][y + j].is_reproduced = true;
+                Position p = find_empty_case(ecosystem, x + i, y + j);
+                ecosystem.grid[int(p.x)][int(p.y)] = make_individual(individual.individual_type);
+                reproduced = true;
+                i = 2;
+                j = 2;
+            }
+        }
+    }
+    return reproduced;
+}
+
+/**
+ * function for fill the ecosystem.
+ * @param ecosystem Ecosystem to fill.
+ */
+void fill_ecosystem_grid(Ecosystem &ecosystem) {
+    int x, y;
+    for (int i = 1; i < 3; ++i) {
+        for (int j = 0; j < ecosystem.individual_types[i].nb_entity; ++j) {
+            do {
+                x = frand(0, ecosystem.dx);
+                y = frand(0, ecosystem.dy);
+            } while (!is_herb(ecosystem.grid[x][y]));
+            ecosystem.grid[x][y] = make_individual(ecosystem.individual_types[i]);
+        }
+    }
+}
+
+void update_life_individual(Individual &individual, Ecosystem ecosystem) {
+    individual.life_duration++;
+    individual.jeune_duration++;
+    if (is_dead(individual) && !is_herb(individual)) {
+        individual.individual_type.nb_entity--;
+        individual = make_individual(ecosystem.individual_types[1]);
+    }
+}
+
+
+void update_life(Ecosystem &ecosystem) {
+    for (int i = 0; i < ecosystem.dy; ++i) {
+        for (int j = 0; j < ecosystem.dy; ++j) {
+            update_life_individual(ecosystem.grid[i][j], ecosystem);
+        }
+    }
+}
+
+void update_reproduced(Ecosystem &ecosystem) {
+    for (int i = 1; i < (ecosystem.dx - 1); ++i) {
+        for (int j = 1; j < (ecosystem.dy - 1); ++j) {
+            if (is_prey(ecosystem.grid[i][j]) || is_predator(ecosystem.grid[i][j])) {
+                reproduced(ecosystem.grid[i][j], ecosystem, i, j);
+            }
+        }
+    }
+}
+
+void update_grid(Ecosystem &ecosystem) {
+    update_reproduced(ecosystem);
+}
+
+// CONFIG FUNCTIONS
 // ================
 
 /**
@@ -317,7 +447,7 @@ Window config_window() {
     cin >> window.width_w;
     cout << "Hauteur : ";
     cin >> window.width_h;
-    strcpy(window.name, "Système proie prédateur");
+    strcpy(window.name, WINDOW_NAME);
     return window;
 }
 
@@ -349,19 +479,23 @@ void config_ecosystem(Ecosystem &ecosystem) {
     // We can procedure for config the individual types.
     init_individual_types(ecosystem);
     config_individual_types(ecosystem);
-    init_ecosystem_grid(ecosystem);
-}
 
+    init_ecosystem_grid(ecosystem);
+    fill_ecosystem_grid(ecosystem);
+
+}
 
 // DRAW FUNCTIONS
 
 /**
  * Function for draw an individual.
- * @param individual
+ * @param individual individual to draw
+ * @param position position of the individual
+ * @param ratio size of the image.
  */
 void draw_individual(Individual individual, Position position, float ratio) {
-    cout << position.x << " " << position.y << endl;
     if (is_herb(individual)) {
+
         if (is_old(individual)) {
             image_draw(individual.individual_type.images.male, position.x, position.y, ratio, ratio);
         } else {
@@ -386,23 +520,33 @@ void draw_individual(Individual individual, Position position, float ratio) {
 
 void draw_grid(Window &window) {
     float ratio = min(window.width_h / window.ecosystem.dy, window.width_w / window.ecosystem.dx);
-    cout << ratio << endl;
     for (int i = 0; i < window.ecosystem.dx; ++i) {
         for (int j = 0; j < window.ecosystem.dy; ++j) {
+            // cout << window.ecosystem.grid[i][j].individual_type.type << endl;
+
             draw_individual(window.ecosystem.grid[i][j], make_position(ratio * i, ratio * j), ratio);
         }
     }
 }
 
 int main(int, char **) {
+    bool stop = false;
+    srand(time(NULL));
     Window w = config_window();
 
     winInit(w.name, w.width_w, w.width_h);
     config_ecosystem(w.ecosystem);
-    winClear();
 
-    draw_grid(w);
-    pressSpace();
-    winQuit();
+    while (!stop) {
+        winClear();
+        draw_grid(w);
+        update_grid(w.ecosystem);
+
+        // pressSpace();
+
+        stop = winDisplay();
+
+    }
+
     return 0;
 }
