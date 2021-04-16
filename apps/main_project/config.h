@@ -1,16 +1,24 @@
-using namespace std;
+/**
+ * Fichier contenant les entêtes des fonctions de configurations du
+ * fichier config.
+ * Auteur : Maxime Ben Hassen
+ * Date : 04 avril 2021.
+ */
+#ifndef _CONFIG_H
+#define _CONFIG_H
 
-int DIM_H = 1080;
-int DIM_W = 1920;
-const int max_str = 100;
-const char application_name[100] = "Ma super application";
+const int MAX_CHAR = 100;
 
-void set_config() {
+/**
+ * Struct for contains the size 
+ * and the name of the window.
+ */
+struct Window
+{
+  char name[MAX_CHAR];
+  int width_w, width_h;
+};
 
-  cout << "Welcome in my application, thank to set the weight of the window :"
-       << endl
-       << "Width : ";
-  cin >> DIM_W;
-  cout << "Height : ";
-  cin >> DIM_H;
-}
+Window set_config();
+
+#endif _CONFIG_H

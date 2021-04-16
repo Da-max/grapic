@@ -15,7 +15,7 @@ Mon but est également de mettre en place un environnement de développement ass
 ### À partir des sources
 
 - Cloner le dépot `git clone https://github.com/Da-max/grapic`
-- Se rendre dans le dossier `cd grapic` 
+- Se rendre dans le dossier `cd grapic`
 - Lancer le build et run avec `make start`
 
 ### À partir du zip
@@ -37,8 +37,8 @@ Début du projet, pour l’instant très classique. Pas séparé en plusieurs fi
 
 ### Avancement au 9 avril
 
-*Suite du projet, pas grand chose de plus.* À ce stade, mon projet compile, cependant il me reste un bug (que je n’arrive toujours pas à résoudre) : si je ne passe pas mes structures par référence, 
-j’obtiens une erreur (*segmentation erreur*). 
+_Suite du projet, pas grand chose de plus._ À ce stade, mon projet compile, cependant il me reste un bug (que je n’arrive toujours pas à résoudre) : si je ne passe pas mes structures par référence,
+j’obtiens une erreur (_segmentation erreur_).
 
 - Définition de structures complémentaires et quelques fonctions afin de créer/confiurer ces structures.
 - Modification du makefile afin d’automatiser quelques opérations (build+run et zip).
@@ -51,3 +51,17 @@ j’obtiens une erreur (*segmentation erreur*).
 - Commencer les fonctions d’updates.
 - Trouver et ajouter d’autres images (en fonction du genre et nombre de jours de vie).
 - Essayer de séparer en plusieurs fichiers (?)
+
+### Avancement au 16 avril
+
+_Suite du projet, ajout de quelques fonctions qui d’update._
+
+- Correction du problème avec les images.
+- Ajout de fonctions d’update.
+- Ajout d’image (qui ne me conviennent pas).
+
+#### TODO
+
+- Modifier les images (remplacer par des carrés/triangles ?).
+- Mettre en place des boutons afin d’avancer dans l’évolution.
+- Essayer de faire des prédictions grâce aux fonctions de Lotka.
