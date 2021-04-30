@@ -16,7 +16,6 @@
 using namespace grapic;
 using namespace std;
 
-
 // ===================
 // | CONST VARIABLES |
 // ===================
@@ -39,7 +38,7 @@ const int BUTTON_SIZE = 30;
 const char BASE_DIR_IMG[MAX_CHAR] = "data/img/main_project/";
 const char EXTENSION_IMG[MAX_CHAR] = ".png";
 const int GRID_WIDTH = 20;
-const char MENU_LABEL[MAX_INPUT][MAX_CHAR] = {"Nombre proie", "Nombre predateur"};
+const char MENU_LABEL[MAX_INPUT][MAX_CHAR] = {"Nombre proie", "Duree de jeune proie", "Nombre predateur", "Duree de jeune predateur"};
 
 // Individual type
 const char TYPES[3][MAX_CHAR] = {"herb", "prey", "predator"};
@@ -53,23 +52,25 @@ const int PERCENT_REPRODUCTION[3] = {0, 50, 100};
 const int PERCENT_DEAD[3] = {0, 25, 25};
 const int PERCENT_EAT[3] = {0, 0, 100};
 
-
 // ===========
 // | STRUCTS |
 // ===========
 
 typedef struct Window Window;
 
-struct Position {
+struct Position
+{
     float x, y;
 };
 
-struct EmptyCases {
+struct EmptyCases
+{
     Position positions[8];
     int nb = 0;
 };
 
-struct IndividualTypeImages {
+struct IndividualTypeImages
+{
     Image male;
     Image female;
     Image child_male;
@@ -89,7 +90,8 @@ struct IndividualTypeImages {
  * (when the life_duration of the individual > life_duration of the type).
  * int life_duration_eat min life_duration for eat an other type.
  */
-struct IndividualType {
+struct IndividualType
+{
     int type = 0;
     char name[MAX_CHAR] = "herb";
 
@@ -115,7 +117,8 @@ struct IndividualType {
   * if genre is O, it is a man, else it is a female (1).
   * If individual_type is 0, it is a grass, if is 1, it is a prey, else it is a predator.
  */
-struct Individual {
+struct Individual
+{
     IndividualType individual_type;
     int genre = -1;
     int youth_duration = 0;
@@ -126,20 +129,23 @@ struct Individual {
 /**
  * This struct represent the ecosystem.
  */
-struct Ecosystem {
+struct Ecosystem
+{
     Individual grid[GRID_WIDTH][GRID_WIDTH];
     IndividualType individual_types[3];
     IndividualTypeImages individual_type_images[3];
     int dx = 10, dy = 10;
 };
 
-struct Color {
+struct Color
+{
     unsigned char red;
     unsigned char green;
     unsigned char blue;
 };
 
-struct Button {
+struct Button
+{
     Position min, max;
     Color color;
     char text[MAX_CHAR];
@@ -147,14 +153,16 @@ struct Button {
     void (*on_click)(Window &window);
 };
 
-struct NumberInput {
+struct NumberInput
+{
     Button more_button;
     Button less_button;
     char content[MAX_CHAR];
     Color color;
 };
 
-struct PMenu {
+struct PMenu
+{
     NumberInput number_input[MAX_INPUT];
     int nb_input;
 };
@@ -163,7 +171,8 @@ struct PMenu {
  * This struct contains the size 
  * and the name of the window.
  */
-struct Window {
+struct Window
+{
     char name[MAX_CHAR];
     int width_w, width_h;
     int ecosystem_w, ecosystem_h;
@@ -174,7 +183,6 @@ struct Window {
     PMenu menu;
 };
 
-
 // =====================
 // | OPERATORS HEADERS |
 // ====================
@@ -183,12 +191,9 @@ bool operator==(IndividualType individual_type1, IndividualType individual_type2
 
 bool operator==(Individual individual1, Individual individual2);
 
-
-
 // ===========
 // | GETTERS |
 // ===========
-
 
 // Position getters
 // ================
@@ -198,14 +203,15 @@ bool operator==(Individual individual1, Individual individual2);
  * @param position
  * @return
  */
-bool is_empty_pos(Position position) {
+bool is_empty_pos(Position position)
+{
     return int(position.x) == -1 || int(position.y) == -1;
 }
 
-bool is_valid_pos(Position position, Ecosystem ecosystem) {
+bool is_valid_pos(Position position, Ecosystem ecosystem)
+{
     return !is_empty_pos(position) && int(position.x) < ecosystem.dx && int(position.y) < ecosystem.dy;
 }
-
 
 // Individual getters
 // ==================
@@ -216,7 +222,8 @@ bool is_valid_pos(Position position, Ecosystem ecosystem) {
  * @param individual2
  * @return
  */
-bool can_reproduce_btw(Individual individual1, Individual individual2) {
+bool can_reproduce_btw(Individual individual1, Individual individual2)
+{
     return individual1.individual_type == individual2.individual_type && individual1.genre != individual2.genre &&
            !individual1.is_reproduced && !individual2.is_reproduced;
 }
@@ -227,17 +234,24 @@ bool can_reproduce_btw(Individual individual1, Individual individual2) {
  * @param position
  * @return
  */
-Individual get_individual_by_position(Ecosystem ecosystem, Position position) {
+Individual get_individual_by_position(Ecosystem ecosystem, Position position)
+{
 
-    if (int(position.x) < 0) {
+    if (int(position.x) < 0)
+    {
         position.x = 0;
-    } else if (int(position.x) >= ecosystem.dx) {
+    }
+    else if (int(position.x) >= ecosystem.dx)
+    {
         position.x = ecosystem.dx - 1;
     }
 
-    if (int(position.y) < 0) {
+    if (int(position.y) < 0)
+    {
         position.y = 0;
-    } else if (int(position.y) >= ecosystem.dy) {
+    }
+    else if (int(position.y) >= ecosystem.dy)
+    {
         position.y = ecosystem.dy - 1;
     }
 
@@ -249,7 +263,8 @@ Individual get_individual_by_position(Ecosystem ecosystem, Position position) {
  * @param individual
  * @return
  */
-bool is_dead(Individual individual) {
+bool is_dead(Individual individual)
+{
     return individual.youth_duration > individual.individual_type.youth_duration ||
            individual.life_duration > individual.individual_type.life_duration;
 }
@@ -259,8 +274,10 @@ bool is_dead(Individual individual) {
  * @param individual The individual analysed.
  * @return bool.
  */
-bool is_female(Individual individual) {
-    if (individual.genre < 0) {
+bool is_female(Individual individual)
+{
+    if (individual.genre < 0)
+    {
         throw invalid_argument("L’individu n’a pas de genre, ou celui-ci n’est pas defini.");
     }
     return individual.genre >= 1;
@@ -272,7 +289,8 @@ bool is_female(Individual individual) {
  * @param individual the individual analysed
  * @return bool
  */
-bool is_herb(Individual individual) {
+bool is_herb(Individual individual)
+{
     return individual.individual_type.type == 0;
 }
 
@@ -281,7 +299,8 @@ bool is_herb(Individual individual) {
  * @param individual The individual analysed.
  * @return bool.
  */
-bool is_male(Individual individual) {
+bool is_male(Individual individual)
+{
     return !is_female(individual);
 }
 
@@ -290,7 +309,8 @@ bool is_male(Individual individual) {
  * @param individual The individual analysed.
  * @return bool.
  */
-bool is_old(Individual individual) {
+bool is_old(Individual individual)
+{
     return individual.life_duration > individual.individual_type.life_duration / 2;
 }
 
@@ -300,7 +320,8 @@ bool is_old(Individual individual) {
  * @param individual the individual analysed
  * @return bool
  */
-bool is_predator(Individual individual) {
+bool is_predator(Individual individual)
+{
     return individual.individual_type.type == 2;
 }
 
@@ -311,7 +332,8 @@ bool is_predator(Individual individual) {
  * @param individual the individual analysed
  * @return bool
  */
-bool is_prey(Individual individual) {
+bool is_prey(Individual individual)
+{
     return individual.individual_type.type == 1;
 }
 
@@ -320,7 +342,8 @@ bool is_prey(Individual individual) {
  * @param individual
  * @return
  */
-int type(Individual individual) {
+int type(Individual individual)
+{
     return individual.individual_type.type;
 }
 
@@ -329,15 +352,16 @@ int type(Individual individual) {
  * @param individual
  * @return
  */
-bool can_eat(Individual individual) {
+bool can_eat(Individual individual)
+{
     return is_predator(individual) && individual.life_duration > individual.individual_type.life_duration_eat;
 }
-
 
 // Button getters
 // ==============
 
-bool is_in(Position position, Button button) {
+bool is_in(Position position, Button button)
+{
     return position.x > button.min.x && position.x < button.max.x && position.y > button.min.y &&
            position.y < button.max.y;
 }
@@ -345,7 +369,8 @@ bool is_in(Position position, Button button) {
 // Ecosystem getters
 // =================
 
-bool is_full(Ecosystem ecosystem) {
+bool is_full(Ecosystem ecosystem)
+{
     return ecosystem.individual_types[1].nb_entity + ecosystem.individual_types[2].nb_entity >=
            ecosystem.dx * ecosystem.dy;
 }
@@ -353,7 +378,8 @@ bool is_full(Ecosystem ecosystem) {
 // Window getters
 // ==============
 
-Position get_mouse_pos() {
+Position get_mouse_pos()
+{
     int x, y;
     mousePos(x, y);
     Position p;
@@ -362,12 +388,9 @@ Position get_mouse_pos() {
     return p;
 }
 
-
-
 // ==================
 // | MAKE FUNCTIONS |
 // ==================
-
 
 /**
  * Function for make a position (or Complex).
@@ -375,7 +398,8 @@ Position get_mouse_pos() {
  * @param y
  * @return Position
  */
-Position make_position(float x = -1, float y = -1) {
+Position make_position(float x = -1, float y = -1)
+{
     Position p;
     p.x = x;
     p.y = y;
@@ -389,7 +413,8 @@ Position make_position(float x = -1, float y = -1) {
  * @param b
  * @return
  */
-Color make_color(unsigned char r = 255, unsigned char g = 0, unsigned char b = 0) {
+Color make_color(unsigned char r = 255, unsigned char g = 0, unsigned char b = 0)
+{
     Color color;
     color.red = r;
     color.green = g;
@@ -406,7 +431,8 @@ Color make_color(unsigned char r = 255, unsigned char g = 0, unsigned char b = 0
  */
 Button
 make_button(Position min_pos, Position max_pos, void fn(Window &window), char text[MAX_CHAR],
-            Color color = make_color()) {
+            Color color = make_color())
+{
     Button button;
     button.min = min_pos;
     button.max = max_pos;
@@ -425,7 +451,8 @@ make_button(Position min_pos, Position max_pos, void fn(Window &window), char te
  */
 NumberInput make_number_input(Position min_pos, Position max_pos, void fn1(Window &window), void fn2(Window &window),
                               char text1[MAX_CHAR], char text2[MAX_CHAR], char content[MAX_CHAR],
-                              Color color = make_color()) {
+                              Color color = make_color())
+{
     NumberInput number_input;
     number_input.more_button = make_button(min_pos, make_position(min_pos.x + ((max_pos.x - min_pos.x) / 2), max_pos.y),
                                            fn1,
@@ -443,7 +470,8 @@ NumberInput make_number_input(Position min_pos, Position max_pos, void fn1(Windo
  * @param individual_type the type of individual for whom the images are to be created
  * @return IndividualTypeImages created
  */
-IndividualTypeImages make_individual_type_images(int type) {
+IndividualTypeImages make_individual_type_images(int type)
+{
     IndividualTypeImages individual_type_images;
     char base_dir_img[MAX_CHAR], img[MAX_CHAR];
     strcpy(base_dir_img, BASE_DIR_IMG);
@@ -456,7 +484,8 @@ IndividualTypeImages make_individual_type_images(int type) {
     individual_type_images.female = image(img);
     individual_type_images.child_female = image(img);
     individual_type_images.child_male = image(img);
-    if (type > 0) {
+    if (type > 0)
+    {
         strcpy(img, base_dir_img);
         strcat(img, "female");
         strcat(img, EXTENSION_IMG);
@@ -478,8 +507,10 @@ IndividualTypeImages make_individual_type_images(int type) {
  * @param type type
  * @return IndividualType
  */
-IndividualType make_individual_type(int type) {
-    if (type < 0 || type > 3) {
+IndividualType make_individual_type(int type)
+{
+    if (type < 0 || type > 3)
+    {
         throw invalid_argument("The type of individu is not valide. It should be between 0 and 3.");
     }
 
@@ -501,18 +532,24 @@ IndividualType make_individual_type(int type) {
  * @param individual_type IndividualType the type of individual created
  * @return Individual
  */
-Individual make_individual(IndividualType individual_type, int genre = -1, int life_duration = 0) {
+Individual make_individual(IndividualType individual_type, int genre = -1, int life_duration = 0)
+{
     Individual individual;
     individual.individual_type = individual_type;
-    if (is_prey(individual) || is_predator(individual)) {
+    if (is_prey(individual) || is_predator(individual))
+    {
 
-        if (genre == -1) {
+        if (genre == -1)
+        {
             individual.genre = frand(0, 2);
-        } else {
+        }
+        else
+        {
             individual.genre = genre;
         }
 
-        if (life_duration > 0) {
+        if (life_duration > 0)
+        {
             individual.life_duration = life_duration;
         }
     }
@@ -524,7 +561,8 @@ Individual make_individual(IndividualType individual_type, int genre = -1, int l
  * @param ecosystem
  * @return
  */
-Individual make_herb(Ecosystem ecosystem) {
+Individual make_herb(Ecosystem ecosystem)
+{
     return make_individual(ecosystem.individual_types[0]);
 }
 
@@ -533,7 +571,8 @@ Individual make_herb(Ecosystem ecosystem) {
  * @param ecosystem
  * @return
  */
-Individual make_predator(Ecosystem ecosystem) {
+Individual make_predator(Ecosystem ecosystem)
+{
     return make_individual(ecosystem.individual_types[2]);
 }
 
@@ -542,16 +581,14 @@ Individual make_predator(Ecosystem ecosystem) {
  * @param ecosystem
  * @return
  */
-Individual make_prey(Ecosystem ecosystem) {
+Individual make_prey(Ecosystem ecosystem)
+{
     return make_individual(ecosystem.individual_types[1]);
 }
-
-
 
 // =============
 // | OPERATORS |
 // =============
-
 
 // Individual operators
 // ====================
@@ -562,14 +599,15 @@ Individual make_prey(Ecosystem ecosystem) {
  * @param individual2
  * @return
  */
-bool operator==(Individual individual1, Individual individual2) {
+bool operator==(Individual individual1, Individual individual2)
+{
     bool response = individual1.individual_type == individual2.individual_type;
-    if (response && (is_prey(individual1) || is_predator(individual1))) {
+    if (response && (is_prey(individual1) || is_predator(individual1)))
+    {
         response = individual1.genre == individual2.genre;
     }
     return response;
 }
-
 
 // Individual type operators
 // =========================
@@ -580,26 +618,26 @@ bool operator==(Individual individual1, Individual individual2) {
  * @param individual_type2
  * @return
  */
-bool operator==(IndividualType individual_type1, IndividualType individual_type2) {
+bool operator==(IndividualType individual_type1, IndividualType individual_type2)
+{
     return individual_type1.type == individual_type2.type;
 }
-
 
 // Color operators
 // ===============
 
-Color operator+(Color color, float number) {
+Color operator+(Color color, float number)
+{
     return make_color(color.red + number, color.green + number, color.blue + number);
 }
-
 
 // Position operators
 // ==================
 
-bool operator!=(Position p1, Position p2) {
+bool operator!=(Position p1, Position p2)
+{
     return p1.x != p2.x && p1.y != p2.y;
 }
-
 
 // ===================
 // | UTILS FUNCTIONS |
@@ -612,7 +650,8 @@ bool operator!=(Position p1, Position p2) {
  * Utils function for set a color by a Struct Color.
  * @param c
  */
-void color_by_struct(Color c) {
+void color_by_struct(Color c)
+{
     color(c.red, c.green, c.blue);
 }
 
@@ -624,16 +663,17 @@ void color_by_struct(Color c) {
  * @param window
  * @return
  */
-float compute_ratio_ecosystem(Window window) {
+float compute_ratio_ecosystem(Window window)
+{
     return min(window.ecosystem_h / (window.ecosystem.dy + 1), window.ecosystem_w / (window.ecosystem.dx + 1));
 }
-
 
 /**
  * Utils function for compute the sizes of different element of the window.
  * @param window
  */
-void compute_window_sizes(Window &window) {
+void compute_window_sizes(Window &window)
+{
     // Ecosystem size.
     window.ecosystem_w = (window.width_w * 2) / 3;
     window.ecosystem_h = (window.width_h * 2) / 3;
@@ -647,7 +687,6 @@ void compute_window_sizes(Window &window) {
     window.graph_h = window.width_h / 3;
 }
 
-
 // CASES
 // =====
 
@@ -657,8 +696,10 @@ void compute_window_sizes(Window &window) {
  * @param empty_cases
  * @param position
  */
-void add_position_empty_case(EmptyCases &empty_cases, Position position) {
-    if (!is_empty_pos(position)) {
+void add_position_empty_case(EmptyCases &empty_cases, Position position)
+{
+    if (!is_empty_pos(position))
+    {
         empty_cases.positions[empty_cases.nb] = position;
         empty_cases.nb++;
     }
@@ -671,17 +712,21 @@ void add_position_empty_case(EmptyCases &empty_cases, Position position) {
  * @param y
  * @return EmptyCases.
  */
-EmptyCases find_cases(Ecosystem ecosystem, IndividualType individual_type, Position position = make_position()) {
+EmptyCases find_cases(Ecosystem ecosystem, IndividualType individual_type, Position position = make_position())
+{
     EmptyCases empty_cases;
     Position tmp_pos;
 
-    for (int i = -1; i < 2; ++i) {
-        for (int j = -1; j < 2; ++j) {
+    for (int i = -1; i < 2; ++i)
+    {
+        for (int j = -1; j < 2; ++j)
+        {
             tmp_pos = make_position(position.x + i, position.y + j);
             if (get_individual_by_position(ecosystem, tmp_pos).individual_type ==
-                individual_type && tmp_pos != position) {
+                    individual_type &&
+                tmp_pos != position)
+            {
                 add_position_empty_case(empty_cases, make_position(position.x + i, position.y + j));
-                cout << empty_cases.nb << endl;
             }
         }
     }
@@ -695,11 +740,12 @@ EmptyCases find_cases(Ecosystem ecosystem, IndividualType individual_type, Posit
  * @param y
  * @return Position.
  */
-Position find_case(Ecosystem ecosystem, IndividualType individual_type, Position position = make_position()) {
+Position find_case(Ecosystem ecosystem, IndividualType individual_type, Position position = make_position())
+{
     Position p = make_position();
     EmptyCases empty_cases = find_cases(ecosystem, individual_type, position);
-    if (empty_cases.nb > 0) {
-        cout << empty_cases.nb << endl;
+    if (empty_cases.nb > 0)
+    {
         p = empty_cases.positions[irand(0, empty_cases.nb - 1)];
     }
 
@@ -712,16 +758,22 @@ Position find_case(Ecosystem ecosystem, IndividualType individual_type, Position
  * @param individual_type
  * @return
  */
-Position find_random_case(Ecosystem ecosystem, IndividualType individual_type) {
+Position find_random_case(Ecosystem ecosystem, IndividualType individual_type)
+{
     Position p = make_position();
-    if (is_predator(make_individual(individual_type)) || is_prey(make_individual(individual_type))) {
-        while (is_empty_pos(p) && ecosystem.individual_types[individual_type.type].nb_entity > 0) {
+    if (is_predator(make_individual(individual_type)) || is_prey(make_individual(individual_type)))
+    {
+        while (is_empty_pos(p) && ecosystem.individual_types[individual_type.type].nb_entity > 0)
+        {
             int y = irand(1, ecosystem.dy - 1);
             int x = irand(1, ecosystem.dx - 1);
             p = find_case(ecosystem, individual_type, make_position(x, y));
         }
-    } else {
-        while (is_empty_pos(p) && !is_full(ecosystem)) {
+    }
+    else
+    {
+        while (is_empty_pos(p) && !is_full(ecosystem))
+        {
             int y = irand(1, ecosystem.dy - 1);
             int x = irand(1, ecosystem.dx - 1);
             p = find_case(ecosystem, individual_type,
@@ -740,16 +792,20 @@ Position find_random_case(Ecosystem ecosystem, IndividualType individual_type) {
  * @return
  */
 EmptyCases find_double_ecosystem_cases(Ecosystem ecosystem1, Ecosystem ecosystem2, IndividualType individual_type,
-                                       Position position = make_position()) {
+                                       Position position = make_position())
+{
     EmptyCases empty_cases;
     Position current_pos;
     Individual indivi_eco1;
-    for (int i = -1; i < 2; ++i) {
-        for (int j = -1; j < 2; ++j) {
+    for (int i = -1; i < 2; ++i)
+    {
+        for (int j = -1; j < 2; ++j)
+        {
             current_pos = make_position(position.x + i, position.y + j);
             indivi_eco1 = get_individual_by_position(ecosystem1, current_pos);
             if (indivi_eco1.individual_type == individual_type &&
-                get_individual_by_position(ecosystem2, current_pos) == indivi_eco1) {
+                get_individual_by_position(ecosystem2, current_pos) == indivi_eco1)
+            {
                 add_position_empty_case(empty_cases, make_position(position.x + i, position.y + j));
             }
         }
@@ -766,10 +822,12 @@ EmptyCases find_double_ecosystem_cases(Ecosystem ecosystem1, Ecosystem ecosystem
  * @return
  */
 Position find_double_ecosystem_case(Ecosystem ecosystem1, Ecosystem ecosystem2, IndividualType individual_type,
-                                    Position position = make_position()) {
+                                    Position position = make_position())
+{
     EmptyCases empty_cases = find_double_ecosystem_cases(ecosystem1, ecosystem2, individual_type, position);
     Position p = make_position();
-    if (empty_cases.nb > 0) {
+    if (empty_cases.nb > 0)
+    {
         p = empty_cases.positions[int(frand(0, empty_cases.nb))];
     }
 
@@ -784,12 +842,16 @@ Position find_double_ecosystem_case(Ecosystem ecosystem1, Ecosystem ecosystem2, 
  * @param y
  * @return bool. (true, if the individual was reproduced).
  */
-Position find_couple_position(Ecosystem ecosystem, Position position) {
+Position find_couple_position(Ecosystem ecosystem, Position position)
+{
     Position repro_position = make_position();
-    for (int i = -1; i < 2; ++i) {
-        for (int j = -1; j < 2; ++j) {
+    for (int i = -1; i < 2; ++i)
+    {
+        for (int j = -1; j < 2; ++j)
+        {
             if (can_reproduce_btw(ecosystem.grid[int(position.x)][int(position.y)],
-                                  ecosystem.grid[int(position.x + i)][int(position.y + j)])) {
+                                  ecosystem.grid[int(position.x + i)][int(position.y + j)]))
+            {
                 repro_position = make_position(position.x + i, position.y + j);
 
                 i = 1;
@@ -805,10 +867,14 @@ Position find_couple_position(Ecosystem ecosystem, Position position) {
  * @param mouse_position
  * @param window
  */
-void search_button(Position mouse_position, Window &window) {
-    if (is_in(mouse_position, window.start_button)) window.start_button.on_click(window);
-    else {
-        for (int i = 0; i < window.menu.nb_input; ++i) {
+void search_button(Position mouse_position, Window &window)
+{
+    if (is_in(mouse_position, window.start_button))
+        window.start_button.on_click(window);
+    else
+    {
+        for (int i = 0; i < window.menu.nb_input; ++i)
+        {
             if (is_in(mouse_position, window.menu.number_input[i].less_button))
                 window.menu.number_input[i].less_button.on_click(window);
             else if (is_in(mouse_position, window.menu.number_input[i].more_button))
@@ -820,20 +886,19 @@ void search_button(Position mouse_position, Window &window) {
 // STRING
 // ======
 
-int length_str(char string[MAX_CHAR]) {
+int length_str(char string[MAX_CHAR])
+{
     int i = 0;
-    while (string[i] != '\0') {
+    while (string[i] != '\0')
+    {
         i++;
     }
     return i;
 }
 
-
-
 // ====================
 // | UPDATE FUNCTIONS |
 // ====================
-
 
 // ECOSYSTEM
 // =========
@@ -844,19 +909,27 @@ int length_str(char string[MAX_CHAR]) {
  * @param individual
  * @param position
  */
-void add_individual_ecosystem(Ecosystem &ecosystem, Individual individual, Position position) {
-    try {
-        if (is_valid_pos(position, ecosystem)) {
+void add_individual_ecosystem(Ecosystem &ecosystem, Individual individual, Position position)
+{
+    try
+    {
+        if (is_valid_pos(position, ecosystem))
+        {
             Individual current_indivi = get_individual_by_position(ecosystem, position);
-            if (!is_herb(current_indivi)) {
+            if (!is_herb(current_indivi))
+            {
                 ecosystem.individual_types[type(current_indivi)].nb_entity--;
             }
             ecosystem.grid[int(position.x)][int(position.y)] = individual;
             ecosystem.individual_types[type(individual)].nb_entity++;
-        } else {
+        }
+        else
+        {
             throw invalid_argument("La position pour ajouter l’individu n’est pas valide.");
         }
-    } catch (const exception &e) {
+    }
+    catch (const exception &e)
+    {
         cout << e.what() << endl;
     }
 }
@@ -866,15 +939,22 @@ void add_individual_ecosystem(Ecosystem &ecosystem, Individual individual, Posit
  * @param ecosystem
  * @param position
  */
-void kill_individual_ecosystem(Ecosystem &ecosystem, Position position) {
-    try {
-        if (is_valid_pos(position, ecosystem)) {
+void kill_individual_ecosystem(Ecosystem &ecosystem, Position position)
+{
+    try
+    {
+        if (is_valid_pos(position, ecosystem))
+        {
             ecosystem.individual_types[type(get_individual_by_position(ecosystem, position))].nb_entity--;
             ecosystem.grid[int(position.x)][int(position.y)] = make_herb(ecosystem);
-        } else {
+        }
+        else
+        {
             throw invalid_argument("La position pour tuer l‘invididu n’est pas valide.");
         }
-    } catch (const exception &e) {
+    }
+    catch (const exception &e)
+    {
         cout << e.what() << endl;
     }
 }
@@ -885,9 +965,11 @@ void kill_individual_ecosystem(Ecosystem &ecosystem, Position position) {
  * @param predator_pos
  * @param prey_pos
  */
-void eat_individual_ecosystem(Ecosystem &ecosystem, Position predator_pos, Position prey_pos) {
+void eat_individual_ecosystem(Ecosystem &ecosystem, Position predator_pos, Position prey_pos)
+{
     if (is_predator(get_individual_by_position(ecosystem, predator_pos)) &&
-        is_prey(get_individual_by_position(ecosystem, prey_pos))) {
+        is_prey(get_individual_by_position(ecosystem, prey_pos)))
+    {
         kill_individual_ecosystem(ecosystem, prey_pos);
         ecosystem.grid[int(predator_pos.x)][int(predator_pos.y)].youth_duration = 0;
     }
@@ -900,9 +982,11 @@ void eat_individual_ecosystem(Ecosystem &ecosystem, Position predator_pos, Posit
  * @param old_position
  * @param new_position
  */
-Position move_individual_ecosystem(Ecosystem &ecosystem, Position old_position, Position new_position) {
+Position move_individual_ecosystem(Ecosystem &ecosystem, Position old_position, Position new_position)
+{
     Position p = old_position;
-    if (is_herb(get_individual_by_position(ecosystem, new_position))) {
+    if (is_herb(get_individual_by_position(ecosystem, new_position)))
+    {
         ecosystem.grid[int(new_position.x)][int(new_position.y)] = get_individual_by_position(ecosystem, old_position);
         ecosystem.grid[int(old_position.x)][int(old_position.y)] = make_herb(ecosystem);
         p = new_position;
@@ -916,25 +1000,29 @@ Position move_individual_ecosystem(Ecosystem &ecosystem, Position old_position, 
  * @param indivi1_pos
  * @param indivi2_pos
  */
-void
-reproduce_individual_ecosystem(Ecosystem &ecosystem, Position indivi1_pos, Position indivi2_pos, Position new_pos) {
+void reproduce_individual_ecosystem(Ecosystem &ecosystem, Position indivi1_pos, Position indivi2_pos, Position new_pos)
+{
     add_individual_ecosystem(ecosystem,
                              make_individual(ecosystem.individual_types[type(
-                                     get_individual_by_position(ecosystem, indivi1_pos))]), new_pos);
+                                 get_individual_by_position(ecosystem, indivi1_pos))]),
+                             new_pos);
     ecosystem.grid[int(indivi1_pos.x)][int(indivi1_pos.y)].is_reproduced = true;
     ecosystem.grid[int(indivi2_pos.x)][int(indivi2_pos.y)].is_reproduced = true;
-
 }
 
 /**
  * function for fill the ecosystem.
  * @param ecosystem Ecosystem to fill.
  */
-void fill_ecosystem_grid(Ecosystem &ecosystem) {
+void fill_ecosystem_grid(Ecosystem &ecosystem)
+{
     int x, y;
-    for (int i = 1; i < 3; ++i) {
-        for (int j = 0; j < ecosystem.individual_types[i].nb_entity; ++j) {
-            do {
+    for (int i = 1; i < 3; ++i)
+    {
+        for (int j = 0; j < ecosystem.individual_types[i].nb_entity; ++j)
+        {
+            do
+            {
                 x = irand(1, (ecosystem.dx - 1));
                 y = irand(1, (ecosystem.dy - 1));
             } while (!is_herb(ecosystem.grid[x][y]));
@@ -948,30 +1036,55 @@ void fill_ecosystem_grid(Ecosystem &ecosystem) {
  * @param ecosystem
  * @param indivi_pos
  */
-void update_individual(Ecosystem ecosystem, Ecosystem &new_ecosystem, Position indivi_pos) {
+void update_individual(Ecosystem ecosystem, Ecosystem &new_ecosystem, Position indivi_pos)
+{
     Position p = find_case(new_ecosystem, ecosystem.individual_types[0], indivi_pos);
 
     Individual indivi_current = get_individual_by_position(ecosystem, indivi_pos);
-    if (!is_empty_pos(p)) {
+    if (!is_empty_pos(p))
+    {
         Position repro_pos = find_couple_position(new_ecosystem, indivi_pos);
         if (!is_empty_pos(repro_pos) &&
-            ecosystem.individual_types[type(indivi_current)].percent_reproduction > frand(0, 100)) {
+            ecosystem.individual_types[type(indivi_current)].percent_reproduction > frand(0, 100))
+        {
             reproduce_individual_ecosystem(new_ecosystem, indivi_pos, repro_pos, p);
-        } else {
+        }
+        else
+        {
             indivi_pos = move_individual_ecosystem(new_ecosystem, indivi_pos, p);
 
             // if a prey move, his jeune duration = 0
-            if (is_prey(indivi_current)) {
+            if (is_prey(indivi_current))
+            {
                 new_ecosystem.grid[int(p.x)][int(p.y)].youth_duration = 0;
             }
         }
     }
 
-    if (is_dead(indivi_current) && ecosystem.individual_types[type(indivi_current)].percent_dead > frand(0, 100)) {
+    if (is_dead(indivi_current) && ecosystem.individual_types[type(indivi_current)].percent_dead > frand(0, 100))
+    {
         kill_individual_ecosystem(new_ecosystem, indivi_pos);
-    } else {
+    }
+    else
+    {
         new_ecosystem.grid[int(indivi_pos.x)][int(indivi_pos.y)].youth_duration++;
         new_ecosystem.grid[int(indivi_pos.x)][int(indivi_pos.y)].life_duration++;
+    }
+}
+
+void update_individual_type_metadata(Ecosystem &ecosystem)
+{
+    for (int i = 0; i < ecosystem.dx; i++)
+    {
+        for (int j = 0; j < ecosystem.dy; j++)
+        {
+            if (is_prey(ecosystem.grid[i][j]) || is_predator(ecosystem.grid[i][j]))
+            {
+                ecosystem.grid[i][j].individual_type.youth_duration = ecosystem.individual_types[type(ecosystem.grid[i][j])].youth_duration;
+                ecosystem.grid[i][j].individual_type.life_duration = ecosystem.individual_types[type(ecosystem.grid[i][j])].life_duration;
+                ecosystem.grid[i][j].individual_type.life_duration_eat = ecosystem.individual_types[type(ecosystem.grid[i][j])].life_duration_eat;
+            }
+        }
     }
 }
 
@@ -979,9 +1092,12 @@ void update_individual(Ecosystem ecosystem, Ecosystem &new_ecosystem, Position i
  * Function for reset all individuals in the ecosystem.
  * @param ecosystem
  */
-void pre_update(Ecosystem &ecosystem) {
-    for (int i = 0; i < ecosystem.dx; ++i) {
-        for (int j = 0; j < ecosystem.dy; ++j) {
+void pre_update(Ecosystem &ecosystem)
+{
+    for (int i = 0; i < ecosystem.dx; ++i)
+    {
+        for (int j = 0; j < ecosystem.dy; ++j)
+        {
             ecosystem.grid[i][j].is_reproduced = false;
         }
     }
@@ -991,11 +1107,15 @@ void pre_update(Ecosystem &ecosystem) {
  * Function for update prey.
  * @param ecosystem
  */
-void update_prey(Ecosystem ecosystem, Ecosystem &new_ecosystem) {
-    for (int i = 0; i < ecosystem.dx; ++i) {
-        for (int j = 0; j < ecosystem.dy; ++j) {
+void update_prey(Ecosystem ecosystem, Ecosystem &new_ecosystem)
+{
+    for (int i = 0; i < ecosystem.dx; ++i)
+    {
+        for (int j = 0; j < ecosystem.dy; ++j)
+        {
             Position indivi_pos = make_position(i, j);
-            if (is_prey(get_individual_by_position(ecosystem, indivi_pos))) {
+            if (is_prey(get_individual_by_position(ecosystem, indivi_pos)))
+            {
                 update_individual(ecosystem, new_ecosystem, indivi_pos);
             }
         }
@@ -1006,20 +1126,26 @@ void update_prey(Ecosystem ecosystem, Ecosystem &new_ecosystem) {
  * Function for update predator.
  * @param ecosystem
  */
-void update_predator(Ecosystem ecosystem, Ecosystem &new_ecosystem) {
-    for (int i = 0; i < ecosystem.dx; ++i) {
-        for (int j = 0; j < ecosystem.dy; ++j) {
+void update_predator(Ecosystem ecosystem, Ecosystem &new_ecosystem)
+{
+    for (int i = 0; i < ecosystem.dx; ++i)
+    {
+        for (int j = 0; j < ecosystem.dy; ++j)
+        {
             Position indivi_pos = make_position(i, j);
             Individual current_individu = get_individual_by_position(ecosystem, indivi_pos);
-            if (is_predator(current_individu)) {
+            if (is_predator(current_individu))
+            {
                 Position indivi_eat_pos = find_double_ecosystem_case(ecosystem, new_ecosystem,
                                                                      ecosystem.individual_types[1], indivi_pos);
 
                 if (!is_empty_pos(indivi_eat_pos) &&
-                    can_eat(current_individu) && ecosystem.individual_types[type(
-                        current_individu)].percent_eat > frand(0, 100)) {
+                    can_eat(current_individu) && ecosystem.individual_types[type(current_individu)].percent_eat > frand(0, 100))
+                {
                     eat_individual_ecosystem(ecosystem, indivi_pos, indivi_eat_pos);
-                } else {
+                }
+                else
+                {
                     update_individual(ecosystem, new_ecosystem, indivi_pos);
                 }
             }
@@ -1031,7 +1157,8 @@ void update_predator(Ecosystem ecosystem, Ecosystem &new_ecosystem) {
  * Function for update all the ecosystem.
  * @param ecosystem
  */
-void update_grid(Ecosystem &ecosystem) {
+void update_grid(Ecosystem &ecosystem)
+{
     pre_update(ecosystem);
     Ecosystem new_ecosystem = ecosystem;
     update_prey(ecosystem, new_ecosystem);
@@ -1039,51 +1166,95 @@ void update_grid(Ecosystem &ecosystem) {
     ecosystem = new_ecosystem;
 }
 
-void update_ecosystem(Window &window) {
-    for (int i = 0; i < 1; ++i) {
+void update_ecosystem(Window &window)
+{
+    for (int i = 0; i < 1; ++i)
+    {
         update_grid(window.ecosystem);
         delay(200);
     }
 }
 
-void mouse_press(Window &window) {
+void mouse_press(Window &window)
+{
     Position mouse_pos = get_mouse_pos();
     search_button(mouse_pos, window);
     delay(200);
 }
 
-void update_window(Window &window) {
-    if (isMousePressed(SDL_BUTTON_LEFT)) mouse_press(window);
+void update_window(Window &window)
+{
+    if (isMousePressed(SDL_BUTTON_LEFT))
+        mouse_press(window);
 }
-
 
 // MENU
 // ====
 
-void add_random_prey(Window &window) {
+void add_random_prey(Window &window)
+{
     Position p = find_random_case(window.ecosystem, window.ecosystem.individual_types[0]);
-    cout << p.x << " " << p.y << endl;
     add_individual_ecosystem(window.ecosystem, make_prey(window.ecosystem), p);
 }
 
-void kill_random_prey(Window &window) {
+void kill_random_prey(Window &window)
+{
     kill_individual_ecosystem(window.ecosystem,
                               find_random_case(window.ecosystem, window.ecosystem.individual_types[1]));
 }
 
+void less_youth_duratuion_prey(Window &window)
+{
+    if (window.ecosystem.individual_types[1].youth_duration > 0)
+    {
+        window.ecosystem.individual_types[1].youth_duration--;
+        update_individual_type_metadata(window.ecosystem);
+    }
+}
 
+void more_youth_duration_prey(Window &window)
+{
+    window.ecosystem.individual_types[1].youth_duration++;
+    update_individual_type_metadata(window.ecosystem);
+}
+
+void add_random_predator(Window &window)
+{
+    add_individual_ecosystem(window.ecosystem, make_predator(window.ecosystem), find_random_case(window.ecosystem, window.ecosystem.individual_types[0]));
+}
+
+void kill_random_predator(Window &window)
+{
+    kill_individual_ecosystem(window.ecosystem, find_random_case(window.ecosystem, window.ecosystem.individual_types[2]));
+}
+
+void less_youth_duration_predator(Window &window)
+{
+    if (window.ecosystem.individual_types[2].youth_duration > 0)
+    {
+        window.ecosystem.individual_types[2].youth_duration--;
+        update_individual_type_metadata(window.ecosystem);
+    }
+}
+
+void more_youth_duration_predator(Window &window)
+{
+    window.ecosystem.individual_types[2].youth_duration++;
+    update_individual_type_metadata(window.ecosystem);
+}
 
 // ==================
 // | INIT FUNCTIONS |
 // ==================
 
-
 /**
  * Function for init each individual types.
  * @param ecosystem Ecosystem to which the type of individual belongs
  */
-void init_individual_types(Ecosystem &ecosystem) {
-    for (int i = 0; i < 3; i++) {
+void init_individual_types(Ecosystem &ecosystem)
+{
+    for (int i = 0; i < 3; i++)
+    {
         ecosystem.individual_types[i] = make_individual_type(i);
     }
 }
@@ -1092,8 +1263,10 @@ void init_individual_types(Ecosystem &ecosystem) {
  * Function for fill individual_type_image[3]
  * @param individual_type_images
  */
-void init_individual_types_image(IndividualTypeImages individual_type_images[3]) {
-    for (int i = 0; i < 3; i++) {
+void init_individual_types_image(IndividualTypeImages individual_type_images[3])
+{
+    for (int i = 0; i < 3; i++)
+    {
         individual_type_images[i] = make_individual_type_images(i);
     }
 }
@@ -1102,9 +1275,12 @@ void init_individual_types_image(IndividualTypeImages individual_type_images[3])
  * Function for init the ecosystem grid with the first type.
  * @param ecosystem Ecosystem to init.
  */
-void init_ecosystem_grid(Ecosystem &ecosystem) {
-    for (int i = 0; i < ecosystem.dx; ++i) {
-        for (int j = 0; j < ecosystem.dy; ++j) {
+void init_ecosystem_grid(Ecosystem &ecosystem)
+{
+    for (int i = 0; i < ecosystem.dx; ++i)
+    {
+        for (int j = 0; j < ecosystem.dy; ++j)
+        {
             ecosystem.grid[i][j] = make_individual(ecosystem.individual_types[0]);
         }
     }
@@ -1114,8 +1290,14 @@ void init_ecosystem_grid(Ecosystem &ecosystem) {
  * Function for init the window and create the menu.
  * @param window
  */
-void init_buttons(Window &window) {
-    void (*on_clicks[MAX_INPUT * 2 ])(Window &window) = {add_random_prey, kill_random_prey};
+void init_buttons(Window &window)
+{
+    void (*on_clicks[MAX_INPUT * 2])(Window & window) = {
+        add_random_prey, kill_random_prey,
+        more_youth_duration_prey, less_youth_duratuion_prey,
+        add_random_predator, kill_random_predator,
+        more_youth_duration_predator, less_youth_duration_predator};
+
     char text1[MAX_CHAR];
     char text2[MAX_CHAR];
     strcpy(text1, "Start simulation");
@@ -1123,26 +1305,22 @@ void init_buttons(Window &window) {
                                       make_position(window.width_w, BUTTON_SIZE),
                                       update_ecosystem, text1);
 
-    window.menu.nb_input = 1;
+    window.menu.nb_input = 4;
 
-    for (int i = 0; i < window.menu.nb_input; ++i) {
+    for (int i = 0; i < window.menu.nb_input; ++i)
+    {
         strcpy(text1, "+");
         strcpy(text2, "-");
         char label[MAX_CHAR];
-        strcpy(label, MENU_LABEL[0]);
+        strcpy(label, MENU_LABEL[i]);
 
-        window.menu.number_input[0] = make_number_input(
-                make_position(window.width_w - window.menu_w, (BUTTON_SIZE * (i + 1)) + BUTTON_SIZE / 10),
-                make_position(window.width_w, BUTTON_SIZE * (i + 2)), on_clicks[i],
-                on_clicks[i + 1],
-                text1, text2, label
-        );
+        window.menu.number_input[i] = make_number_input(
+            make_position(window.width_w - window.menu_w, (BUTTON_SIZE * (i + 1)) + BUTTON_SIZE / 10),
+            make_position(window.width_w, BUTTON_SIZE * (i + 2)), on_clicks[i * 2],
+            on_clicks[i * 2 + 1],
+            text1, text2, label);
     }
-
-
 }
-
-
 
 // ====================
 // | CONFIG FUNCTIONS |
@@ -1152,14 +1330,17 @@ void init_buttons(Window &window) {
  * Procedure to config an individual_type
  * @param ecosystem Ecosystem of the inidvidual_type
  */
-void config_individual_types(Ecosystem &ecosystem) {
+void config_individual_types(Ecosystem &ecosystem)
+{
     bool stop = false;
     int tmp__nb_type = -1, tmp__nb_type_2 = -1;
     cout << "Configuration des types d’individus." << endl
          << "-----------------------------------" << endl;
     cout << "Veuillez choisir le nombre de d’individu de chaque type que vous souhaitez." << endl;
-    while (!stop) {
-        try {
+    while (!stop)
+    {
+        try
+        {
             cout << "Nombre de proie (maximum : " << (ecosystem.dx - 2) * (ecosystem.dy - 2)
                  << ") : ";
             cin >> tmp__nb_type;
@@ -1169,17 +1350,21 @@ void config_individual_types(Ecosystem &ecosystem) {
             cin >> tmp__nb_type_2;
 
             if (tmp__nb_type <= 0 || tmp__nb_type_2 <= 0 ||
-                tmp__nb_type + tmp__nb_type_2 >= (ecosystem.dx - 2) * (ecosystem.dy - 2)) {
+                tmp__nb_type + tmp__nb_type_2 >= (ecosystem.dx - 2) * (ecosystem.dy - 2))
+            {
                 throw invalid_argument("Les nombres rentres ne sont pas valides, merci de reessayer.");
-            } else {
+            }
+            else
+            {
                 stop = true;
                 ecosystem.individual_types[0].nb_entity =
-                        (ecosystem.dx * ecosystem.dy) - (tmp__nb_type + tmp__nb_type_2);
+                    (ecosystem.dx * ecosystem.dy) - (tmp__nb_type + tmp__nb_type_2);
                 ecosystem.individual_types[1].nb_entity = tmp__nb_type;
                 ecosystem.individual_types[2].nb_entity = tmp__nb_type_2;
             }
         }
-        catch (const exception &e) {
+        catch (const exception &e)
+        {
             cout << "Attention, " << e.what() << endl;
         }
     }
@@ -1189,7 +1374,8 @@ void config_individual_types(Ecosystem &ecosystem) {
  * Function to ask and set the Window struct.
  * @return Window
  */
-Window config_window() {
+Window config_window()
+{
     Window window;
     cout << "Configuration de la fenetre." << endl
          << "============================" << endl;
@@ -1208,30 +1394,37 @@ Window config_window() {
  * Function for config an ecosystem
  * @return
  */
-void config_ecosystem(Ecosystem &ecosystem) {
+void config_ecosystem(Ecosystem &ecosystem)
+{
     int tmp__size_x = 0, tmp__size_y = 0;
     bool stop = false;
 
     cout << "Configuration de l’ecosysteme." << endl
          << "==============================" << endl;
     cout << "Veuillez choisir la taille de la grille a utilise." << endl;
-    while (!stop) {
-        try {
+    while (!stop)
+    {
+        try
+        {
             cout << "Taille en x (maximum : " << GRID_WIDTH << ") : ";
             cin >> tmp__size_x;
             cout << "Taille en y (maximum : " << GRID_WIDTH << ") : ";
             cin >> tmp__size_y;
-            if (tmp__size_x > GRID_WIDTH || tmp__size_y > GRID_WIDTH || tmp__size_y < 0 || tmp__size_x < 0) {
+            if (tmp__size_x > GRID_WIDTH || tmp__size_y > GRID_WIDTH || tmp__size_y < 0 || tmp__size_x < 0)
+            {
                 throw invalid_argument("Les tailles rentrees ne sont pas valides, merci de reessayer.");
-            } else {
+            }
+            else
+            {
                 ecosystem.dx = tmp__size_x;
                 ecosystem.dy = tmp__size_y;
                 stop = true;
             }
-        } catch (const exception &e) {
+        }
+        catch (const exception &e)
+        {
             cout << e.what() << endl;
         }
-
     }
 
     init_individual_types_image(ecosystem.individual_type_images);
@@ -1244,22 +1437,27 @@ void config_ecosystem(Ecosystem &ecosystem) {
     fill_ecosystem_grid(ecosystem);
 }
 
-
-
 // ==================
 // | DRAW FUNCTIONS |
 // ==================
-
 
 /**
  * Function for draw the data of the ecosystem.
  * @param ecosystem
  */
-void draw_ecosystem_data(Window window) {
-    for (int i = 1; i < 3; ++i) {
-        print(window.graph_w, window.width_h - (i * 20), window.ecosystem.individual_types[i].nb_entity);
+void draw_ecosystem_data(Window window)
+{
+    char menu_label[MAX_CHAR];
+    int i;
+    for (i = 1; i < 3; ++i)
+    {
+        strcpy(menu_label, MENU_LABEL[i - 1]);
+        print(window.graph_w - length_str(menu_label) * 15, window.width_h - (i * i * 20), menu_label);
+        print(window.graph_w, window.width_h - (i * i * 20), window.ecosystem.individual_types[i].nb_entity);
+        strcpy(menu_label, MENU_LABEL[i - 1]);
+        print(window.graph_w - length_str(menu_label) * 15, window.width_h - (i * 20 + 20 * i), menu_label);
+        print(window.graph_w, window.width_h - (i * 20 + 20 * i), window.ecosystem.individual_types[i].youth_duration);
     }
-
 }
 
 /**
@@ -1268,23 +1466,35 @@ void draw_ecosystem_data(Window window) {
  * @param position position of the individual
  * @param ratio size of the image.
  */
-void draw_individual(Individual individual, IndividualTypeImages images, Position position, float ratio) {
-    if (is_herb(individual)) {
+void draw_individual(Individual individual, IndividualTypeImages images, Position position, float ratio)
+{
+    if (is_herb(individual))
+    {
         color(0, 200, 100);
         rectangleFill(int(position.x), int(position.y), int(position.x + ratio), int(position.y + ratio));
-    } else { // We must look the genre of the individual.
-        cout << position.x << " " << position.y << endl;
+    }
+    else // We must look the genre of the individual.
+    {
 
-        if (is_male(individual)) {
-            if (is_old(individual)) {
+        if (is_male(individual))
+        {
+            if (is_old(individual))
+            {
                 image_draw(images.male, position.x, position.y, ratio, ratio);
-            } else {
+            }
+            else
+            {
                 image_draw(images.child_male, position.x, position.y, ratio, ratio);
             }
-        } else {
-            if (is_old(individual)) {
+        }
+        else
+        {
+            if (is_old(individual))
+            {
                 image_draw(images.female, position.x, position.y, ratio, ratio);
-            } else {
+            }
+            else
+            {
                 image_draw(images.child_female, position.x, position.y, ratio, ratio);
             }
         }
@@ -1293,7 +1503,8 @@ void draw_individual(Individual individual, IndividualTypeImages images, Positio
     rectangle(int(position.x), int(position.y), int(position.x + ratio), int(position.y + ratio));
 }
 
-void draw_button(Button button) {
+void draw_button(Button button)
+{
     color_by_struct(button.color);
     rectangleFill(int(button.min.x), int(button.min.y), int(button.max.x), int(button.max.y));
     color_by_struct(button.color + 10);
@@ -1301,15 +1512,16 @@ void draw_button(Button button) {
     print(int((button.min.x + button.max.x) / 2 - length_str(button.text) * 6), int(button.min.y), button.text);
 }
 
-void draw_number_input(NumberInput number_input) {
+void draw_number_input(NumberInput number_input)
+{
     color_by_struct(number_input.color);
     rectangleFill(int(number_input.more_button.min.x), int(number_input.more_button.min.y),
                   int(number_input.less_button.max.x), int(number_input.less_button.max.y));
     draw_button(number_input.more_button);
     draw_button(number_input.less_button);
     print(int(
-            (number_input.less_button.max.x + number_input.more_button.min.x) / 2 -
-            length_str(number_input.content) * 6),
+              (number_input.less_button.max.x + number_input.more_button.min.x) / 2 -
+              length_str(number_input.content) * 6),
           int(number_input.less_button.min.y), number_input.content);
 }
 
@@ -1317,11 +1529,14 @@ void draw_number_input(NumberInput number_input) {
  * Function for draw the ecosystem.
  * @param window
  */
-void draw_ecosystem(Window window) {
+void draw_ecosystem(Window window)
+{
     backgroundColor(0, 200, 100);
     float ratio = compute_ratio_ecosystem(window);
-    for (int i = 0; i < window.ecosystem.dx; ++i) {
-        for (int j = 0; j < window.ecosystem.dy; ++j) {
+    for (int i = 0; i < window.ecosystem.dx; ++i)
+    {
+        for (int j = 0; j < window.ecosystem.dy; ++j)
+        {
             draw_individual(window.ecosystem.grid[i][j],
                             window.ecosystem.individual_type_images[type(window.ecosystem.grid[i][j])],
                             make_position(ratio * i, ratio * j), ratio);
@@ -1330,20 +1545,20 @@ void draw_ecosystem(Window window) {
     draw_ecosystem_data(window);
 }
 
-
-void draw_window(Window window) {
+void draw_window(Window window)
+{
     draw_ecosystem(window);
-
 
     draw_button(window.start_button);
 
-
-    for (int i = 0; i < window.menu.nb_input; ++i) {
+    for (int i = 0; i < window.menu.nb_input; ++i)
+    {
         draw_number_input(window.menu.number_input[i]);
     }
 }
 
-int main(int, char **) {
+int main(int, char **)
+{
     bool stop = false;
     srand(time(NULL));
     Window w = config_window();
@@ -1354,7 +1569,8 @@ int main(int, char **) {
     config_ecosystem(w.ecosystem);
     init_buttons(w);
 
-    while (!stop) {
+    while (!stop)
+    {
 
         winClear();
 
