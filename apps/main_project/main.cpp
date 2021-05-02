@@ -46,17 +46,16 @@ const char MENU_LABEL[MAX_INPUT][MAX_CHAR] = {"Nombre proie",
                                               "Nombre predateur",
                                               "Duree de jeune predateur", "Duree de vie predateur",
                                               "Pourcentage de mort predateur", "Pourcentage reproduction predateur",
-                                              "Pourcentage mange predateur", "Nombre de generation par round",
+                                              "Pourcentage mange predateur", "Duree de vie minimal avant de manger",
+                                              "Nombre de generation par round",
                                               "Nombre de round",
                                               "Nombre de generation"};
 
 // Individual type
 const char TYPES[3][MAX_CHAR] = {"herb", "prey", "predator"};
-const int YOUTH_DURATION[3] = {20, 15, 3};
+const int YOUTH_DURATION[3] = {20, 10, 3};
 const int LIFE_DURATION[3] = {100, 12, 6};
-
-// Minimal age for kill some prey.
-const int MIN_LIFE_DURATION_EAT = 2;
+const int LIFE_DURATION_EAT[3] = {0, 0, 2};
 
 const int PERCENT_REPRODUCTION[3] = {0, 50, 50};
 const int PERCENT_DEAD[3] = {0, 25, 25};
@@ -116,6 +115,7 @@ struct IndividualType {
     int percent_dead = 100;
     int percent_reproduction = 100;
     int percent_eat = 100;
+
 };
 
 /**
@@ -140,15 +140,23 @@ struct Ecosystem {
     IndividualTypeImages individual_type_images[3];
     int dx = 10, dy = 10;
     int generation = 0;
+    int current_generation = 0;
     Plot plot;
 };
 
+/**
+ * Struct for stock a color.
+ */
 struct Color {
     unsigned char red;
     unsigned char green;
     unsigned char blue;
 };
 
+/**
+ * This struct define a button,
+ * with an event when the button was clicked.
+ */
 struct Button {
     Position min, max;
     Color color;
@@ -157,6 +165,9 @@ struct Button {
     void (*on_click)(Window &window);
 };
 
+/**
+ * Struct for stock two button, a more and a less button.
+ */
 struct NumberInput {
     Button more_button;
     Button less_button;
@@ -183,7 +194,7 @@ struct Window {
     Button start_button;
     PMenu menu;
     int generation_per_round, round = 0;
-    bool start_round = false;
+    int start_round = false;
 };
 
 // =====================
@@ -210,6 +221,12 @@ bool is_empty_pos(Position position) {
     return int(position.x) == -1 || int(position.y) == -1;
 }
 
+/**
+ * Function for return if the position is valid on the ecosystem.
+ * @param position
+ * @param ecosystem
+ * @return
+ */
 bool is_valid_pos(Position position, Ecosystem ecosystem) {
     return !is_empty_pos(position) && int(position.x) < ecosystem.dx && int(position.y) < ecosystem.dy;
 }
@@ -369,7 +386,7 @@ Position get_mouse_pos() {
 }
 
 bool ecosystem_run(Window window) {
-    return window.round * window.generation_per_round > window.ecosystem.generation && window.start_round;
+    return window.start_round && window.ecosystem.current_generation < window.generation_per_round;
 }
 
 // ==================
@@ -499,6 +516,7 @@ IndividualType make_individual_type(int type) {
     individual_type.percent_reproduction = PERCENT_REPRODUCTION[type];
     individual_type.percent_dead = PERCENT_DEAD[type];
     individual_type.percent_eat = PERCENT_EAT[type];
+    individual_type.life_duration_eat = LIFE_DURATION_EAT[type];
 
     return individual_type;
 }
@@ -818,6 +836,11 @@ void search_button(Position mouse_position, Window &window) {
 // STRING
 // ======
 
+/**
+ * Function for return the length of a string.
+ * @param string
+ * @return
+ */
 int length_str(char string[MAX_CHAR]) {
     int i = 0;
     while (string[i] != '\0') {
@@ -972,6 +995,11 @@ void update_individual(Ecosystem ecosystem, Ecosystem &new_ecosystem, Position i
     }
 }
 
+/**
+ * This function update all individual_type of each individual
+ * with the value of global individual_types (stock in the ecosystem).
+ * @param ecosystem
+ */
 void update_individual_type_metadata(Ecosystem &ecosystem) {
     for (int i = 0; i < ecosystem.dx; i++) {
         for (int j = 0; j < ecosystem.dy; j++) {
@@ -1042,6 +1070,10 @@ void update_predator(Ecosystem ecosystem, Ecosystem &new_ecosystem) {
     }
 }
 
+/**
+ * Function for update the plot with the last value of the nb_entity of individual_types.
+ * @param ecosystem
+ */
 void update_plot(Ecosystem &ecosystem) {
     for (int i = 0; i < 2; ++i) {
         plot_add(ecosystem.plot, ecosystem.generation, ecosystem.individual_types[i + 1].nb_entity, i);
@@ -1059,30 +1091,49 @@ void update_grid(Ecosystem &ecosystem) {
     update_predator(ecosystem, new_ecosystem);
     ecosystem = new_ecosystem;
     ecosystem.generation++;
+    ecosystem.current_generation++;
 }
 
+/**
+ * Function for add one round.
+ * @param window
+ */
 void start_round(Window &window) {
     window.round++;
+    window.ecosystem.current_generation = 0;
     window.start_round = true;
 }
 
+/**
+ * This function update the ecosystem.
+ * @param window
+ */
 void update_ecosystem(Window &window) {
     update_grid(window.ecosystem);
     update_plot(window.ecosystem);
 }
 
+/**
+ * This function is call when the mouse is press.
+ * @param window
+ */
 void mouse_press(Window &window) {
     Position mouse_pos = get_mouse_pos();
     search_button(mouse_pos, window);
     delay(200);
 }
 
+/**
+ * This function update the window.
+ * @param window
+ */
 void update_window(Window &window) {
 
     if (ecosystem_run(window)) {
         update_ecosystem(window);
     } else {
         window.start_round = false;
+        window.ecosystem.current_generation = 0;
     }
 
     if (isMousePressed(SDL_BUTTON_LEFT))
@@ -1094,6 +1145,13 @@ void update_window(Window &window) {
 
 // Main functions
 
+/**
+ * This function change random individual, with an individual_type
+ * and an other parameter add = true if we want to add the individual.
+ * @param window
+ * @param individual_type
+ * @param add
+ */
 void change_random_individual(Window &window, IndividualType individual_type, bool add = true) {
     add ? add_individual_ecosystem(window.ecosystem, make_individual(individual_type),
                                    find_random_case(window.ecosystem, window.ecosystem.individual_types[0]))
@@ -1101,6 +1159,13 @@ void change_random_individual(Window &window, IndividualType individual_type, bo
                                     find_random_case(window.ecosystem, individual_type));
 }
 
+/**
+ * Function for change an youth duration of an individual_type
+ * and an other parameter more if we want to add 1 or less 1.
+ * @param window
+ * @param individual_type
+ * @param more
+ */
 void change_ecosystem_youth_duration(Window &window, IndividualType individual_type, bool more = true) {
     if (!more) {
         if (window.ecosystem.individual_types[individual_type.type].youth_duration > 0) {
@@ -1112,6 +1177,12 @@ void change_ecosystem_youth_duration(Window &window, IndividualType individual_t
     update_individual_type_metadata(window.ecosystem);
 }
 
+/**
+ * Function for change the life duration of an individual_type.
+ * @param window
+ * @param individual_type
+ * @param more
+ */
 void change_ecosystem_life_duration(Window &window, IndividualType individual_type, bool more = true) {
     if (!more) {
         if (window.ecosystem.individual_types[individual_type.type].life_duration > 0) {
@@ -1123,6 +1194,12 @@ void change_ecosystem_life_duration(Window &window, IndividualType individual_ty
     update_individual_type_metadata(window.ecosystem);
 }
 
+/**
+ * Function for change the percent dead of an individual_type.
+ * @param window
+ * @param individual_type
+ * @param more
+ */
 void change_ecosystem_percent_dead(Window &window, IndividualType individual_type, bool more = true) {
     if (!more) {
         if (window.ecosystem.individual_types[individual_type.type].percent_dead > 0) {
@@ -1134,6 +1211,12 @@ void change_ecosystem_percent_dead(Window &window, IndividualType individual_typ
     update_individual_type_metadata(window.ecosystem);
 }
 
+/**
+ * Function for change the percent eat of an individual_type.
+ * @param window
+ * @param individual_type
+ * @param more
+ */
 void change_ecosystem_percent_eat(Window &window, IndividualType individual_type, bool more = true) {
     if (!more) {
         if (window.ecosystem.individual_types[individual_type.type].percent_eat > 0) {
@@ -1148,6 +1231,12 @@ void change_ecosystem_percent_eat(Window &window, IndividualType individual_type
     update_individual_type_metadata(window.ecosystem);
 }
 
+/**
+ * Function for change the percent reproduction of an individual_type.
+ * @param window
+ * @param individual_type
+ * @param more
+ */
 void change_ecosystem_percent_reproduction(Window &window, IndividualType individual_type, bool more = true) {
     if (!more) {
         if (window.ecosystem.individual_types[individual_type.type].percent_reproduction > 0) {
@@ -1162,11 +1251,34 @@ void change_ecosystem_percent_reproduction(Window &window, IndividualType indivi
     update_individual_type_metadata(window.ecosystem);
 }
 
+/**
+ * Function for change the life_duration_eat of an individual_type.
+ * @param window
+ * @param individual_type
+ * @param more
+ */
+void change_ecosystem_life_duration_eat(Window &window, IndividualType individual_type, bool more = true) {
+    if (!more) {
+        if (window.ecosystem.individual_types[individual_type.type].life_duration_eat > 0) {
+            window.ecosystem.individual_types[individual_type.type].life_duration_eat--;
+        }
+    } else {
+        window.ecosystem.individual_types[individual_type.type].life_duration_eat++;
+    }
+}
+
+/**
+ * Function for change the generation per round of the window.
+ * @param window
+ * @param more
+ */
 void change_ecosystem_generation_per_round(Window &window, bool more = true) {
     if (more) {
         window.generation_per_round++;
     } else {
-        window.generation_per_round--;
+        if (window.generation_per_round > 0) {
+            window.generation_per_round--;
+        }
     }
 }
 
@@ -1271,6 +1383,13 @@ void more_percent_reproduction_predator(Window &window) {
     change_ecosystem_percent_reproduction(window, window.ecosystem.individual_types[2]);
 }
 
+void less_life_duration_eat_predator(Window &window) {
+    change_ecosystem_life_duration_eat(window, window.ecosystem.individual_types[2], false);
+}
+
+void more_life_duration_eat_predator(Window &window) {
+    change_ecosystem_life_duration_eat(window, window.ecosystem.individual_types[2]);
+}
 
 // ==================
 // | INIT FUNCTIONS |
@@ -1337,6 +1456,7 @@ void init_buttons(Window &window) {
             more_percent_dead_predator, less_percent_dead_predator,
             more_percent_reproduction_predator, less_percent_reproduction_predator,
             more_percent_eat_predator, less_percent_eat_predator,
+            more_life_duration_eat_predator, less_life_duration_eat_predator,
             more_generation_per_round, less_generation_per_round
     };
 
@@ -1347,7 +1467,7 @@ void init_buttons(Window &window) {
                                       make_position(window.width_w, BUTTON_SIZE),
                                       start_round, text1);
 
-    window.menu.nb_input = 12;
+    window.menu.nb_input = 13;
 
     for (int i = 0; i < window.menu.nb_input; ++i) {
         strcpy(text1, "+");
@@ -1363,6 +1483,10 @@ void init_buttons(Window &window) {
     }
 }
 
+/**
+ * Function for init the window.
+ * @param window
+ */
 void init_window(Window &window) {
     window.generation_per_round = GENERATION_PER_ROUND;
     init_buttons(window);
@@ -1503,26 +1627,31 @@ void draw_ecosystem_data(Window window) {
         print(window.width_w - 30, window.menu_h - (i * 150 + 125),
               window.ecosystem.individual_types[i + 1].percent_reproduction);
     }
-    strcpy(menu_label, MENU_LABEL[window.menu.nb_input - 2]);
+    strcpy(menu_label, MENU_LABEL[window.menu.nb_input - 3]);
     print(window.width_w - length_str(menu_label) * 13, window.menu_h - 300, menu_label);
     print(window.width_w - 30, window.menu_h - 300,
           window.ecosystem.individual_types[2].percent_eat);
 
-    strcpy(menu_label, MENU_LABEL[window.menu.nb_input - 1]);
+    strcpy(menu_label, MENU_LABEL[window.menu.nb_input - 2]);
     print(window.width_w - length_str(menu_label) * 13, window.menu_h - 325, menu_label);
     print(window.width_w - 30, window.menu_h - 325,
+          window.ecosystem.individual_types[2].life_duration_eat);
+
+    strcpy(menu_label, MENU_LABEL[window.menu.nb_input - 1]);
+    print(window.width_w - length_str(menu_label) * 13, window.menu_h - 350, menu_label);
+    print(window.width_w - 30, window.menu_h - 350,
           window.generation_per_round);
 
 
     strcpy(menu_label, MENU_LABEL[window.menu.nb_input]);
-    print(window.width_w - length_str(menu_label) * 13, window.menu_h - 350, menu_label);
-    print(window.width_w - 30, window.menu_h - 350,
+    print(window.width_w - length_str(menu_label) * 13, window.menu_h - 375, menu_label);
+    print(window.width_w - 30, window.menu_h - 375,
           window.round);
 
 
     strcpy(menu_label, MENU_LABEL[window.menu.nb_input + 1]);
-    print(window.width_w - length_str(menu_label) * 13, window.menu_h - 375, menu_label);
-    print(window.width_w - 30, window.menu_h - 375,
+    print(window.width_w - length_str(menu_label) * 13, window.menu_h - 400, menu_label);
+    print(window.width_w - 30, window.menu_h - 400,
           window.ecosystem.generation);
 
 }
