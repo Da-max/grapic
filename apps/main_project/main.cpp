@@ -23,6 +23,7 @@ using namespace std;
 // Global utils
 // ============
 const int MAX_CHAR = 500;
+const char WIKI_LINK[MAX_CHAR] = "https://github.com/Da-max/grapic/wiki";
 
 // Window
 const char WINDOW_NAME[MAX_CHAR] = "Système proie prédateur";
@@ -1539,9 +1540,12 @@ void config_individual_types(Ecosystem &ecosystem) {
  */
 Window config_window() {
     Window window;
+    cout << "Bienvenue sur mon systeme proie-predateur, pour plus d’information, merci de consulter le « wiki » :"
+         << endl
+         << WIKI_LINK << endl;
     cout << "Configuration de la fenetre." << endl
          << "============================" << endl;
-    cout << "Bienvenue sur mon systeme proie-predateur, merci de definir la taille de la fenetre "
+    cout << "Merci de definir la taille de la fenetre "
          << "que vous souhaitez afficher." << endl
          << "Largeur : ";
     cin >> window.width_w;
@@ -1758,10 +1762,14 @@ int main(int, char **) {
     Window w = config_window();
 
     winInit(w.name, w.width_w, w.width_h);
+
+    winClear();
+
     setKeyRepeatMode(false);
 
     config_ecosystem(w.ecosystem);
     init_window(w);
+
 
     while (!stop) {
 
