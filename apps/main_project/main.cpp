@@ -16,9 +16,9 @@
 using namespace grapic;
 using namespace std;
 
-// ===================
-// | CONST VARIABLES |
-// ===================
+// =========
+// | CONST |
+// =========
 
 // Global utils
 // ============
