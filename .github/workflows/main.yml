@@ -22,3 +22,9 @@ jobs:
         
       - name: Build project
         run:  make main_project
+      
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-build
+          path: bin/main_project # or path/to/artifact
